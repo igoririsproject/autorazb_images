@@ -1,0 +1,116 @@
+@charset "UTF-8";
+
+* {
+	font-family: Arial, sans-serif;
+	font-size: 14px;
+	box-sizing: border-box;
+}
+
+html, body {
+	margin: 0;
+	padding: 0;
+}
+
+.image__processor__greetings-text {
+	text-align: center;
+}
+
+.image__processor__container {
+	padding: 0 5%;
+}
+
+.image__processor__inner-upload-button {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin: auto;
+	width: 480px;
+	max-width: 100%;
+	border-radius: 8px;
+	padding: 20px;
+	background: #fefefe;
+	box-shadow: inset 0 0 20px 3px #fff, 0 0 2px 0 rgba(0,0,0,.3);
+}
+
+.image__processor__inner-upload-drop {
+	padding: 20px;
+	height: 100%;
+	width: 60%;
+	border-radius: 8px;
+	background: #f6f6f6;
+	border: 2px dashed rgba(0,0,0,.3);
+	text-align: center;
+	font-size: 16px;
+	transition: border 0.3s;
+}
+
+.image__processor__inner-upload-drop.dragenter {
+	border: 2px dashed #988dff;
+}
+
+.image__processor__inner-upload-button [type="file"] {
+	display: none;
+}
+
+.image__processor__inner-upload-button button {
+	border: none;
+	background: #f6f6f6;
+	box-shadow: inset 0 0 20px 3px #fff, 0 0 2px 0 rgba(0,0,0,.3);
+	padding: 10px 16px;
+	border-radius: 6px;
+	outline: none;
+	cursor: pointer;
+	transition: .3s;
+	font-weight: 600;
+}
+
+.image__processor__inner-upload-button button:hover {
+	box-shadow: inset 0 0 20px 3px #fff, 0 0 2px 0 rgba(0,0,0,.5);
+	background: #fafafa;
+}
+
+.image__processor__inner-upload-list:not(:empty) {
+	padding: 10px;
+	background: #f6f6f6;
+	width: 480px;
+	max-width: 100%;
+	margin: 20px auto 0;
+}
+
+.image__processor__inner-upload-list img {
+	display: inline-block;
+	vertical-align: middle;
+	margin: 10px;
+	max-width: 96px;
+	max-height: 96px;
+}
+
+.image__processor__inner-upload-control {
+	width: 60%;
+	margin: 20px auto 0;
+	text-align: center;
+}
+
+.image__processor__inner-upload-control button {
+	border: none;
+	background: #f6f6f6;
+	box-shadow: inset 0 0 20px 3px #fff, 0 0 2px 0 rgba(0,0,0,.3);
+	padding: 10px 16px;
+	border-radius: 6px;
+	outline: none;
+	cursor: pointer;
+	transition: .3s;
+	font-weight: 600;
+}
+
+.image__processor__inner-upload-control button:not(:last-child) {
+	margin-right: 20px;
+}
+
+:disabled {
+	opacity: 0.5;
+}
+
+.hidden {
+	display: none !important;
+}

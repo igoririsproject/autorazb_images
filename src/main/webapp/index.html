@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Image processor page</title>
+	<link rel="stylesheet" href="/assets/css/main.css"></link>
+</head>
+<body>
+	<div class="image__processor__container">
+		<h2 class="image__processor__greetings-text">
+			Hi, there! This is a test page for image processor service! Enjoy testing with my software!
+		</h2>
+		<div class="image__processor__inner-upload">
+			<textarea></textarea>
+			<!--
+			<div class="image__processor__inner-upload-button">
+				<div class="image__processor__inner-upload-drop" data-name="uploaded_image">
+					You can drop images here...
+				</div>
+				<div>
+					<input type="file" name="uploaded_image">
+					<button>Upload</button>
+				</div>
+			</div>
+			-->
+			<div class="image__processor__inner-upload-list"></div>
+			<div class="image__processor__inner-upload-control">
+				<button>Process</button>
+				<button class="hidden">Clear</button>
+				<button class="hidden">Remove Watermark</button>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript" src="/assets/js/proto.js"></script>
+	<script type="text/javascript" src="/assets/js/main.js"></script>
+</body>
+</html>
