@@ -33,7 +33,6 @@ import org.opencv.imgproc.Imgproc;
 import org.opencv.photo.Photo;
 
 import com.utils.TimeService;
-import com.http.servlets.ScheduleServlet;
 
 import nu.pattern.OpenCV;
 
@@ -106,7 +105,22 @@ public class UploadServlet extends HttpServlet {
 							System.out.println("Downloading file from " + url + " to " + dest);
 							u = new URL(url);
 							huc = (HttpURLConnection) u.openConnection();
-							int responseCode = huc.getResponseCode();
+							huc.setConnectTimeout(5000);
+							int responseCode = 0;
+
+							try {
+								responseCode = huc.getResponseCode();
+							} catch (Exception $hucEx) {
+								System.out.println("Image " + url + " connection error, retrying...");
+
+								try {
+									huc = (HttpURLConnection) u.openConnection();
+									huc.setConnectTimeout(5000);
+									responseCode = huc.getResponseCode();
+								} catch(Exception $hucEx2) {
+									// keep silence
+								}
+							}
 							 
 							if (responseCode != HttpURLConnection.HTTP_OK) {
 								System.out.println("Image " + url + " does not exist, skipping...");
