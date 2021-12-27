@@ -48,21 +48,21 @@ public class ScheduleServlet extends HttpServlet {
         
         token = COMMAND_DEFAULT_TOKEN;
         
-        if (RUN_TASKS_WHEN_STARTED) {
-			cursTask = TimeService.scheduleTaskAtFixedRate(() -> {
-				runCommand("php " + PATH_TO_YII + " command/products " + token);
-			}, CURS_DEFAULT_RATE, CURS_DEFAULT_RATE, TimeUnit.MINUTES);
-			
-			System.out.println("New Currency update schedule set");
-		}
+      if (RUN_TASKS_WHEN_STARTED) {
+				cursTask = TimeService.scheduleTaskAtFixedRate(() -> {
+					runCommand("php " + PATH_TO_YII + " command/products " + token);
+				}, CURS_DEFAULT_RATE, CURS_DEFAULT_RATE, TimeUnit.MINUTES);
+				
+				System.out.println("New Currency update schedule set");
+			}
 		
-		if (RUN_TASKS_WHEN_STARTED) {
-			cursTask = TimeService.scheduleTaskAtFixedRate(() -> {
-				runCommand("php " + PATH_TO_YII + " command/deactivate " + token);
-			}, REQUEST_DEFAULT_RATE, REQUEST_DEFAULT_RATE, TimeUnit.HOURS);
-			
-			System.out.println("New Request update schedule set");
-		}
+			if (RUN_TASKS_WHEN_STARTED) {
+				cursTask = TimeService.scheduleTaskAtFixedRate(() -> {
+					runCommand("php " + PATH_TO_YII + " command/deactivate " + token);
+				}, REQUEST_DEFAULT_RATE, REQUEST_DEFAULT_RATE, TimeUnit.HOURS);
+				
+				System.out.println("New Request update schedule set");
+			}
     }
     
     public void destroy() {
