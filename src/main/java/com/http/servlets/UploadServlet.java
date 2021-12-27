@@ -53,6 +53,7 @@ public class UploadServlet extends HttpServlet {
 			System.out.println("Upload servlet starting...");
 			OpenCV.loadLocally();
 			System.out.println("OpenCV Loaded");
+			System.out.println(this.getServletInfo());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
