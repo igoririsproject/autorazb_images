@@ -27,9 +27,9 @@ import java.util.Random;
 import java.util.TimeZone;
 import java.util.regex.Pattern;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.xml.bind.DatatypeConverter;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.xml.bind.DatatypeConverter;
 
 public class Utils {
 	private static final DateFormat df0 = new SimpleDateFormat("yyyy-MM-dd");
