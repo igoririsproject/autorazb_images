@@ -533,7 +533,6 @@ public class UploadServlet extends HttpServlet {
 				
 				HashMap<String, String> data = new HashMap<String, String>();
 				data.put("data", idArr.toString());
-
 				HashMap<String, String> response = ScheduleServlet.sendApiRequest("productprocessed", data);
 
 				if (response.get("status").equals("200")) {

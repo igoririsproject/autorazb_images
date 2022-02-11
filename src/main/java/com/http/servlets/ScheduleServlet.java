@@ -235,7 +235,7 @@ public class ScheduleServlet extends HttpServlet {
 	}
 
 	private static HashMap<String, String> sendRequest(String url, HashMap<String, String> postData) {
-		return sendRequest(url, null, 0);
+		return sendRequest(url, postData, 0);
 	}
 
 	private static HashMap<String, String> sendRequest(String url, HashMap<String, String> postData, int currentTry) {
@@ -262,7 +262,7 @@ public class ScheduleServlet extends HttpServlet {
 					huc.setRequestProperty("Content-Type", "application/x-www-form-urlencoded"); 
 					huc.setRequestProperty("charset", "utf-8");
 					huc.setRequestProperty("Content-Length", Integer.toString(dataBytes.length));
-					
+
 					OutputStream str = huc.getOutputStream();
 					str.write(dataBytes);
 					str.flush();
