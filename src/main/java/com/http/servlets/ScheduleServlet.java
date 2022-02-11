@@ -53,7 +53,6 @@ public class ScheduleServlet extends HttpServlet {
         printResponse(sendApiRequest("index"));
 
 				CONTEXT_HOSTNAME = this.getServletContext().getInitParameter("CONTEXT_HOSTNAME");
-        
         token = COMMAND_DEFAULT_TOKEN;
         
       if (RUN_TASKS_WHEN_STARTED) {
@@ -286,7 +285,7 @@ public class ScheduleServlet extends HttpServlet {
 			}
 		}
 
-		if (result.get("status") != "200" && currentTry == 0) {
+		if (!result.get("status").equals("200") && currentTry < 1) {
 			return sendRequest(url, postData, 1);
 		}
 
