@@ -20,6 +20,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.json.JSONObject;
 
 import com.http.helpers.ParameterStringBuilder;
+import com.listeners.CtxListener;
 import com.utils.TimeService;
 
 /**
@@ -52,7 +53,7 @@ public class ScheduleServlet extends HttpServlet {
         System.out.println("Schedule servlet started");
         printResponse(sendApiRequest("index"));
 
-				CONTEXT_HOSTNAME = this.getServletContext().getInitParameter("CONTEXT_HOSTNAME");
+				CONTEXT_HOSTNAME = CtxListener.CONTEXT_HOSTNAME;
         token = COMMAND_DEFAULT_TOKEN;
         
       if (RUN_TASKS_WHEN_STARTED) {
@@ -217,7 +218,7 @@ public class ScheduleServlet extends HttpServlet {
 		if (token.isEmpty()) {
 			token = COMMAND_DEFAULT_TOKEN;
 		}
-		
+
 		String hostname = "https://autorazborkaby.by";
 
 		if (ScheduleServlet.CONTEXT_HOSTNAME != null) {
