@@ -246,7 +246,6 @@ public class ScheduleServlet extends HttpServlet {
 			huc.setConnectTimeout(5000);
 			int responseCode = huc.getResponseCode();
 			result.put("status", String.valueOf(responseCode));
-
 			System.out.println("Request to url " + url + " status code is " + responseCode);
 			
 			if (responseCode == 200) {
@@ -289,7 +288,7 @@ public class ScheduleServlet extends HttpServlet {
 		if (response.get("status") == "200") {
 			System.out.println("Request processed successfully");
 		} else {
-			System.err.println("Error processing request: " + response.get("message"));
+			System.err.println("Error processing request [" + response.get("status") + "]: " + response.get("message"));
 		}
 	}
 }
