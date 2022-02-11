@@ -32,6 +32,7 @@ public class ScheduleServlet extends HttpServlet {
 	private static String token = "";
 	private static final String myToken = "@dn0h@3,0hr@";
 	public static final String PATH_TO_YII = "/var/www/www-root/data/www/autorazborkaby.by/yii";
+	public static String CONTEXT_HOSTNAME;
 	//public static final String PATH_TO_YII = "C:/Apache/yii";
 	
 	private static RunnableScheduledFuture<?> cursTask = null;
@@ -50,6 +51,8 @@ public class ScheduleServlet extends HttpServlet {
         super();
         System.out.println("Schedule servlet started");
         printResponse(sendApiRequest("index"));
+
+				CONTEXT_HOSTNAME = this.getServletContext().getInitParameter("CONTEXT_HOSTNAME");
         
         token = COMMAND_DEFAULT_TOKEN;
         
@@ -202,7 +205,13 @@ public class ScheduleServlet extends HttpServlet {
 	}
 
 	public static HashMap<String, String> sendApiRequest(String action, HashMap<String, String> data) {
-		String url = "https://autorazborkaby.by/api/" + action + "/" + token + "/";
+		String hostname = "https://autorazborkaby.by";
+
+		if (ScheduleServlet.CONTEXT_HOSTNAME != null) {
+			hostname = ScheduleServlet.CONTEXT_HOSTNAME;
+		}
+
+		String url = hostname + "/api/" + action + "/" + token + "/";
 		return sendRequest(url, data);
 	}
 
@@ -285,7 +294,7 @@ public class ScheduleServlet extends HttpServlet {
 	}
 
 	private static void printResponse(HashMap<String, String> response) {
-		if (response.get("status") == "200") {
+		if (response.get("status").equals("200")) {
 			System.out.println("Request processed successfully");
 		} else {
 			System.err.println("Error processing request [" + response.get("status") + "]: " + response.get("message"));

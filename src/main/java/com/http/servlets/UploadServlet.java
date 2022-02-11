@@ -536,7 +536,7 @@ public class UploadServlet extends HttpServlet {
 
 				HashMap<String, String> response = ScheduleServlet.sendApiRequest("productprocessed", data);
 
-				if (response.get("status") == "200") {
+				if (response.get("status").equals("200")) {
 					System.out.println("Product " + productId + " set processed successfully");
 				} else {
 					System.err.println("Error setting product " + productId + " processed: " + response.get("message"));
