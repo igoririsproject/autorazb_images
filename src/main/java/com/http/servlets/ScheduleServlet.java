@@ -211,6 +211,10 @@ public class ScheduleServlet extends HttpServlet {
 	}
 
 	private static HashMap<String, String> sendRequest(String url, HashMap<String, String> postData) {
+		return sendRequest(url, null, 0);
+	}
+
+	private static HashMap<String, String> sendRequest(String url, HashMap<String, String> postData, int currentTry) {
 		HashMap<String, String> result = new HashMap<String, String>();
 		result.put("status", "0");
 		result.put("response", "");
@@ -241,8 +245,9 @@ public class ScheduleServlet extends HttpServlet {
 
 			huc.setConnectTimeout(5000);
 			int responseCode = huc.getResponseCode();
-
 			result.put("status", String.valueOf(responseCode));
+
+			System.out.println("Request to url " + url + " status code is " + responseCode);
 			
 			if (responseCode == 200) {
 				in = new BufferedReader(new InputStreamReader(huc.getInputStream()));
@@ -258,6 +263,7 @@ public class ScheduleServlet extends HttpServlet {
 		} catch (Exception hucEx2) {
 			result.put("status", "500");
 			result.put("response", hucEx2.getMessage());
+			hucEx2.printStackTrace();
 		} finally {
 			if (in != null) {
 				try {
@@ -270,6 +276,10 @@ public class ScheduleServlet extends HttpServlet {
 					huc.disconnect();
 				} catch (Exception ex) {}
 			}
+		}
+
+		if (result.get("status") != "200" && currentTry == 0) {
+			return sendRequest(url, postData, 1);
 		}
 
 		return result;
