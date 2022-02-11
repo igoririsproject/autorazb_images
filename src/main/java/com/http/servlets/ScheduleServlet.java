@@ -41,7 +41,7 @@ public class ScheduleServlet extends HttpServlet {
 	
 	private static final int CURS_DEFAULT_RATE = 288; // Twelve hours
 	private static final int REQUEST_DEFAULT_RATE = 24;
-	private static final String COMMAND_DEFAULT_TOKEN = "Rh0yN@,R0v@yl@";
+	private static final String COMMAND_DEFAULT_TOKEN = "8sthirhoyg1i933n";
 	
     /**
      * @see HttpServlet#HttpServlet()
