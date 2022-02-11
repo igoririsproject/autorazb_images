@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
@@ -253,9 +254,18 @@ public class ScheduleServlet extends HttpServlet {
 				DataOutputStream out = null;
 
 				try {
+					String dataString = ParameterStringBuilder.getParamsString(postData);
+					System.out.println("Sending data: " + dataString);
+					byte[] dataBytes = dataString.toString().getBytes("UTF-8");
+
 					huc.setDoOutput(true);
-					out = new DataOutputStream(huc.getOutputStream());
-					out.writeBytes(ParameterStringBuilder.getParamsString(postData));
+					huc.setRequestProperty("Content-Type", "application/x-www-form-urlencoded"); 
+					huc.setRequestProperty("charset", "utf-8");
+					huc.setRequestProperty("Content-Length", Integer.toString(dataBytes.length));
+					
+					OutputStream str = huc.getOutputStream();
+					str.write(dataBytes);
+					str.flush();
 				} catch (Exception ex) {
 					ex.printStackTrace();
 				} finally {
