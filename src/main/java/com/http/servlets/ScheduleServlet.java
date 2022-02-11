@@ -1,8 +1,12 @@
 package com.http.servlets;
 
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.HashMap;
 import java.util.concurrent.RunnableScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -15,6 +19,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import org.json.JSONObject;
 
+import com.http.helpers.ParameterStringBuilder;
 import com.utils.TimeService;
 
 /**
@@ -44,13 +49,13 @@ public class ScheduleServlet extends HttpServlet {
     public ScheduleServlet() {
         super();
         System.out.println("Schedule servlet started");
-        runCommand("php " + PATH_TO_YII + " command/index");
+        printResponse(sendApiRequest("index"));
         
         token = COMMAND_DEFAULT_TOKEN;
         
       if (RUN_TASKS_WHEN_STARTED) {
 				cursTask = TimeService.scheduleTaskAtFixedRate(() -> {
-					runCommand("php " + PATH_TO_YII + " command/products " + token);
+					printResponse(sendApiRequest("products"));
 				}, CURS_DEFAULT_RATE, CURS_DEFAULT_RATE, TimeUnit.MINUTES);
 				
 				System.out.println("New Currency update schedule set");
@@ -58,7 +63,7 @@ public class ScheduleServlet extends HttpServlet {
 		
 			if (RUN_TASKS_WHEN_STARTED) {
 				cursTask = TimeService.scheduleTaskAtFixedRate(() -> {
-					runCommand("php " + PATH_TO_YII + " command/deactivate " + token);
+					printResponse(sendApiRequest("deactivate"));
 				}, REQUEST_DEFAULT_RATE, REQUEST_DEFAULT_RATE, TimeUnit.HOURS);
 				
 				System.out.println("New Request update schedule set");
@@ -105,7 +110,6 @@ public class ScheduleServlet extends HttpServlet {
 			int cursRate = config.optInt("curs_schedule_rate", 12);
 			int requestRate = config.optInt("request_schedule_rate", 12);
 			token = config.optString("token", "");
-			final String t = token;
 			System.out.println("Proccessing scheduled task update request...");
 			
 			System.out.println("Printing new configuration:\n"+
@@ -133,7 +137,7 @@ public class ScheduleServlet extends HttpServlet {
 			
 			if (cursSchedule) {
 				cursTask = TimeService.scheduleTaskAtFixedRate(() -> {
-					runCommand("php " + PATH_TO_YII + " command/products " + t);
+					printResponse(sendApiRequest("products"));
 				}, cursRate, cursRate, TimeUnit.HOURS);
 				
 				System.out.println("New Currency update schedule set");
@@ -141,7 +145,7 @@ public class ScheduleServlet extends HttpServlet {
 			
 			if (requestSchedule) {
 				cursTask = TimeService.scheduleTaskAtFixedRate(() -> {
-					runCommand("php " + PATH_TO_YII + " command/deactivate " + t);
+					printResponse(sendApiRequest("deactivate"));
 				}, requestRate, requestRate, TimeUnit.HOURS);
 				
 				System.out.println("New Request update schedule set");
@@ -189,6 +193,93 @@ public class ScheduleServlet extends HttpServlet {
 			stdError.close();
 		} catch (IOException e) {
 			e.printStackTrace();
+		}
+	}
+
+	public static HashMap<String, String> sendApiRequest(String action) {
+		String url = "https://autorazborkaby.by/api/" + action + "/" + token + "/";
+		return sendRequest(url);
+	}
+
+	public static HashMap<String, String> sendApiRequest(String action, HashMap<String, String> data) {
+		String url = "https://autorazborkaby.by/api/" + action + "/" + token + "/";
+		return sendRequest(url, data);
+	}
+
+	private static HashMap<String, String> sendRequest(String url) {
+		return sendRequest(url, null);
+	}
+
+	private static HashMap<String, String> sendRequest(String url, HashMap<String, String> postData) {
+		HashMap<String, String> result = new HashMap<String, String>();
+		result.put("status", "0");
+		result.put("response", "");
+		HttpURLConnection huc = null;
+		BufferedReader in = null;
+
+		try {
+			URL u = new URL(url);
+			huc = (HttpURLConnection) u.openConnection();
+
+			if (postData != null) {
+				huc.setRequestMethod("POST");
+				DataOutputStream out = null;
+
+				try {
+					huc.setDoOutput(true);
+					out = new DataOutputStream(huc.getOutputStream());
+					out.writeBytes(ParameterStringBuilder.getParamsString(postData));
+				} catch (Exception ex) {
+					ex.printStackTrace();
+				} finally {
+					if (out != null) {
+						out.flush();
+						out.close();
+					}
+				}
+			}
+
+			huc.setConnectTimeout(5000);
+			int responseCode = huc.getResponseCode();
+
+			result.put("status", String.valueOf(responseCode));
+			
+			if (responseCode == 200) {
+				in = new BufferedReader(new InputStreamReader(huc.getInputStream()));
+				String inputLine;
+				StringBuffer content = new StringBuffer();
+
+				while ((inputLine = in.readLine()) != null) {
+					content.append(inputLine);
+				}
+
+				result.put("response", content.toString());
+			}
+		} catch (Exception hucEx2) {
+			result.put("status", "500");
+			result.put("response", hucEx2.getMessage());
+		} finally {
+			if (in != null) {
+				try {
+					in.close();
+				} catch (Exception ex) {}
+			}
+
+			if (huc != null) {
+				try {
+					huc.disconnect();
+				} catch (Exception ex) {}
+			}
+		}
+
+		return result;
+	}
+
+	private static void printResponse(HashMap<String, String> response) {
+		if (response.get("status") == "200") {
+			System.out.println("Request processed successfully");
+		} else {
+			System.err.println("Error processing request: " + response.get("message"));
 		}
 	}
 }
