@@ -199,11 +199,25 @@ public class ScheduleServlet extends HttpServlet {
 	}
 
 	public static HashMap<String, String> sendApiRequest(String action) {
-		String url = "https://autorazborkaby.by/api/" + action + "/" + token + "/";
+		if (token.isEmpty()) {
+			token = COMMAND_DEFAULT_TOKEN;
+		}
+
+		String hostname = "https://autorazborkaby.by";
+
+		if (ScheduleServlet.CONTEXT_HOSTNAME != null) {
+			hostname = ScheduleServlet.CONTEXT_HOSTNAME;
+		}
+
+		String url = hostname + "/api/" + action + "/" + token + "/";
 		return sendRequest(url);
 	}
 
 	public static HashMap<String, String> sendApiRequest(String action, HashMap<String, String> data) {
+		if (token.isEmpty()) {
+			token = COMMAND_DEFAULT_TOKEN;
+		}
+		
 		String hostname = "https://autorazborkaby.by";
 
 		if (ScheduleServlet.CONTEXT_HOSTNAME != null) {
