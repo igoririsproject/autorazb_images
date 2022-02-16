@@ -48,15 +48,18 @@ public class UploadServlet extends HttpServlet {
 
 	public UploadServlet() {
 		super();
+		System.out.println("Upload servlet starting...");
 
 		try {
-			System.out.println("Upload servlet starting...");
-			OpenCV.loadLocally();
+			OpenCV.loadShared();
 			System.out.println("OpenCV Loaded");
 			System.out.println(this.getServletInfo());
-		} catch (Exception e) {
+		} catch (Throwable e) {
+			System.err.println(e.getMessage());
 			e.printStackTrace();
 		}
+
+		System.out.println("Upload servlet initialized");
 	}
 
 	public void destroy() {
