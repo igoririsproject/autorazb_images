@@ -7,6 +7,7 @@ import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
 import jakarta.servlet.annotation.WebListener;
 
+import com.http.helpers.Logger;
 import com.utils.TimeService;
 
 @WebListener
@@ -27,16 +28,16 @@ public class CtxListener implements ServletContextListener, ServletContextAttrib
 	}
 	
 	public void contextInitialized(ServletContextEvent e) {
-		System.out.println("Tomcat context initialized");
+		Logger.print("Tomcat context initialized");
 
 		ServletContext ctx = e.getServletContext();
 		CONTEXT_HOSTNAME = ctx.getInitParameter("CONTEXT_HOSTNAME");
 
-		System.out.println("CONTEXT_HOSTNAME set to " + CONTEXT_HOSTNAME);
+		Logger.print("CONTEXT_HOSTNAME set to " + CONTEXT_HOSTNAME);
 	}
 	
 	public void contextDestroyed(ServletContextEvent e) {
 		TimeService.destroy();
-		System.out.println("Tomcat context destroyed");
+		Logger.print("Tomcat context destroyed");
 	}
 }

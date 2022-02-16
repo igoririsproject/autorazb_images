@@ -20,6 +20,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import org.json.JSONObject;
 
+import com.http.helpers.Logger;
 import com.http.helpers.ParameterStringBuilder;
 import com.listeners.CtxListener;
 import com.utils.TimeService;
@@ -51,7 +52,7 @@ public class ScheduleServlet extends HttpServlet {
      */
     public ScheduleServlet() {
         super();
-        System.out.println("Schedule servlet started");
+        Logger.print("Schedule servlet started");
         printResponse(sendApiRequest("index"));
 
 				CONTEXT_HOSTNAME = CtxListener.CONTEXT_HOSTNAME;
@@ -62,7 +63,7 @@ public class ScheduleServlet extends HttpServlet {
 					printResponse(sendApiRequest("products"));
 				}, CURS_DEFAULT_RATE, CURS_DEFAULT_RATE, TimeUnit.MINUTES);
 				
-				System.out.println("New Currency update schedule set");
+				Logger.print("New Currency update schedule set");
 			}
 		
 			if (RUN_TASKS_WHEN_STARTED) {
@@ -70,7 +71,7 @@ public class ScheduleServlet extends HttpServlet {
 					printResponse(sendApiRequest("deactivate"));
 				}, REQUEST_DEFAULT_RATE, REQUEST_DEFAULT_RATE, TimeUnit.HOURS);
 				
-				System.out.println("New Request update schedule set");
+				Logger.print("New Request update schedule set");
 			}
     }
     
@@ -83,7 +84,7 @@ public class ScheduleServlet extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		if (request.getParameter("setScheduleRates") == null) {
-			System.err.println("Error: no setScheduleRates parameter");
+			Logger.printError("Error: no setScheduleRates parameter");
 			response.getWriter().write("error");
 			return;
 		}
@@ -91,7 +92,7 @@ public class ScheduleServlet extends HttpServlet {
 		String auth = request.getParameter("token");
 		
 		if (auth == null || !myToken.equals(auth)) {
-			System.err.println("Error: invalid token");
+			Logger.printError("Error: invalid token");
 			response.getWriter().write("error token");
 			return;
 		}
@@ -99,7 +100,7 @@ public class ScheduleServlet extends HttpServlet {
 		String json = request.getParameter("config");
 		
 		if (json == null) {
-			System.err.println("Error: no config parameter");
+			Logger.printError("Error: no config parameter");
 			response.getWriter().write("error config");
 			return;
 		}
@@ -114,9 +115,9 @@ public class ScheduleServlet extends HttpServlet {
 			int cursRate = config.optInt("curs_schedule_rate", 12);
 			int requestRate = config.optInt("request_schedule_rate", 12);
 			token = config.optString("token", "");
-			System.out.println("Proccessing scheduled task update request...");
+			Logger.print("Proccessing scheduled task update request...");
 			
-			System.out.println("Printing new configuration:\n"+
+			Logger.print("Printing new configuration:\n"+
 				"\tRaw json: " + config.toString() + "\n" +
 				"\tCurs updated scheduled: " + (cursSchedule ? "true" : "false") + "\n" +
 				"\tCurs updated timeout: " + cursRate + "\n" +	
@@ -125,17 +126,17 @@ public class ScheduleServlet extends HttpServlet {
 			
 			if (cursTask != null && !cursTask.isCancelled() && !cursTask.isDone()) {
 				if (cursTask.cancel(true)) {
-					System.out.println("Current curs task cancelled");
+					Logger.print("Current curs task cancelled");
 				} else {
-					System.out.println("Current curs task NOT cancelled");
+					Logger.print("Current curs task NOT cancelled");
 				}
 			}
 			
 			if (requestTask != null && !requestTask.isCancelled() && !requestTask.isDone()) {
 				if (requestTask.cancel(true)) {
-					System.out.println("Current request task cancelled");
+					Logger.print("Current request task cancelled");
 				} else {
-					System.out.println("Current request task NOT cancelled");
+					Logger.print("Current request task NOT cancelled");
 				}
 			}
 			
@@ -144,7 +145,7 @@ public class ScheduleServlet extends HttpServlet {
 					printResponse(sendApiRequest("products"));
 				}, cursRate, cursRate, TimeUnit.HOURS);
 				
-				System.out.println("New Currency update schedule set");
+				Logger.print("New Currency update schedule set");
 			}
 			
 			if (requestSchedule) {
@@ -152,7 +153,7 @@ public class ScheduleServlet extends HttpServlet {
 					printResponse(sendApiRequest("deactivate"));
 				}, requestRate, requestRate, TimeUnit.HOURS);
 				
-				System.out.println("New Request update schedule set");
+				Logger.print("New Request update schedule set");
 			}
 			
 			response.getWriter().write("success");
@@ -174,23 +175,23 @@ public class ScheduleServlet extends HttpServlet {
 		String[] env = {"PATH=/bin:/usr/bin/"};
 		
 		try {
-			System.out.println("Running command: " + cmd);
+			Logger.print("Running command: " + cmd);
 			Process proc = Runtime.getRuntime().exec(cmd, env);
 			BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc.getInputStream()));
 			BufferedReader stdError = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
 
-			System.out.println("Schedule servlet command [" + cmd + "] output:\n");
+			Logger.print("Schedule servlet command [" + cmd + "] output:\n");
 			
 			String s = null;
 			
 			while ((s = stdInput.readLine()) != null) {
-			    System.out.println(s);
+			    Logger.print(s);
 			}
 
-			System.out.println("Schedule servlet command [" + cmd + "] errors:\n");
+			Logger.print("Schedule servlet command [" + cmd + "] errors:\n");
 			
 			while ((s = stdError.readLine()) != null) {
-			    System.out.println(s);
+			    Logger.print(s);
 			}
 			
 			stdInput.close();
@@ -255,7 +256,7 @@ public class ScheduleServlet extends HttpServlet {
 
 				try {
 					String dataString = ParameterStringBuilder.getParamsString(postData);
-					System.out.println("Sending data: " + dataString);
+					Logger.print("Sending data: " + dataString);
 					byte[] dataBytes = dataString.toString().getBytes("UTF-8");
 
 					huc.setDoOutput(true);
@@ -279,7 +280,7 @@ public class ScheduleServlet extends HttpServlet {
 			huc.setConnectTimeout(5000);
 			int responseCode = huc.getResponseCode();
 			result.put("status", String.valueOf(responseCode));
-			System.out.println("Request to url " + url + " status code is " + responseCode);
+			Logger.print("Request to url " + url + " status code is " + responseCode);
 			
 			if (responseCode == 200) {
 				in = new BufferedReader(new InputStreamReader(huc.getInputStream()));
@@ -319,9 +320,9 @@ public class ScheduleServlet extends HttpServlet {
 
 	private static void printResponse(HashMap<String, String> response) {
 		if (response.get("status").equals("200")) {
-			System.out.println("Request processed successfully");
+			Logger.print("Request processed successfully");
 		} else {
-			System.err.println("Error processing request [" + response.get("status") + "]: " + response.get("message"));
+			Logger.printError("Error processing request [" + response.get("status") + "]: " + response.get("message"));
 		}
 	}
 }

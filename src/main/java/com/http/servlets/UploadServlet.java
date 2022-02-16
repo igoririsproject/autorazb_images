@@ -32,9 +32,9 @@ import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.photo.Photo;
 
+import com.http.helpers.Logger;
+import com.http.helpers.OpenCVHelper;
 import com.utils.TimeService;
-
-import nu.pattern.OpenCV;
 
 @MultipartConfig
 @WebServlet(urlPatterns = { "/upload/*" }, asyncSupported = true, loadOnStartup = 1)
@@ -48,18 +48,11 @@ public class UploadServlet extends HttpServlet {
 
 	public UploadServlet() {
 		super();
-		System.out.println("Upload servlet starting...");
+		Logger.print("Upload servlet starting...");
 
-		try {
-			OpenCV.loadShared();
-			System.out.println("OpenCV Loaded");
-			System.out.println(this.getServletInfo());
-		} catch (Throwable e) {
-			System.err.println(e.getMessage());
-			e.printStackTrace();
-		}
+		OpenCVHelper.initialize();
 
-		System.out.println("Upload servlet initialized");
+		Logger.print("Upload servlet initialized");
 	}
 
 	public void destroy() {
@@ -81,7 +74,7 @@ public class UploadServlet extends HttpServlet {
 
 		TimeService.submit(() -> {
 			JSONArray arr = new JSONArray(urls);
-			System.out.println("Got " + arr.length() + " images to download and process");
+			Logger.print("Got " + arr.length() + " images to download and process");
 			int l = arr.length();
 
 			for (int i = 0; i < l; i++) {
@@ -112,7 +105,7 @@ public class UploadServlet extends HttpServlet {
 						FileChannel fileChannel = null;
 
 						try {
-							System.out.println("Downloading file from " + url + " to " + dest);
+							Logger.print("Downloading file from " + url + " to " + dest);
 							u = new URL(url);
 							huc = (HttpURLConnection) u.openConnection();
 							huc.setConnectTimeout(5000);
@@ -121,7 +114,7 @@ public class UploadServlet extends HttpServlet {
 							try {
 								responseCode = huc.getResponseCode();
 							} catch (Exception $hucEx) {
-								System.out.println("Image " + url + " connection error, retrying...");
+								Logger.print("Image " + url + " connection error, retrying...");
 
 								try {
 									huc = (HttpURLConnection) u.openConnection();
@@ -133,7 +126,7 @@ public class UploadServlet extends HttpServlet {
 							}
 
 							if (responseCode != HttpURLConnection.HTTP_OK) {
-								System.out.println("Image " + url + " does not exist, skipping...");
+								Logger.print("Image " + url + " does not exist, skipping...");
 								return;
 							}
 
@@ -142,7 +135,7 @@ public class UploadServlet extends HttpServlet {
 							fileChannel = fileOutputStream.getChannel();
 							fileChannel.transferFrom(readableByteChannel, 0, Long.MAX_VALUE);
 
-							System.out.println("File " + dest + " downloaded successfully");
+							Logger.print("File " + dest + " downloaded successfully");
 						} catch (Exception ex1) {
 							ex1.printStackTrace();
 							errorOccured = true;
@@ -181,28 +174,28 @@ public class UploadServlet extends HttpServlet {
 								File input = new File(dest);
 
 								if (!input.isFile()) {
-									System.out.println("Input file " + dest + " does not exist. Skipping...");
+									Logger.print("Input file " + dest + " does not exist. Skipping...");
 									return;
 								}
 
 								if (!input.setReadable(true, false)) {
-									System.out.println("Unable to set read rights to file " + dest);
+									Logger.print("Unable to set read rights to file " + dest);
 								}
 
 								if (!input.setWritable(true, false)) {
-									System.out.println("Unable to set write rights to file " + dest);
+									Logger.print("Unable to set write rights to file " + dest);
 								}
 
 								if (!input.setExecutable(true, false)) {
-									System.out.println("Unable to set execute rights to file " + dest);
+									Logger.print("Unable to set execute rights to file " + dest);
 								}
 
 								if (url.contains("bamper.by")) {
 									removeWatermark(input, dest);
-									System.out.println("Removed watermark from " + dest);
+									Logger.print("Removed watermark from " + dest);
 								} else {
 									addImageText(input, dest);
-									System.out.println("Added text to " + dest);
+									Logger.print("Added text to " + dest);
 								}
 							} catch (Exception ex1) {
 								ex1.printStackTrace();
@@ -226,7 +219,7 @@ public class UploadServlet extends HttpServlet {
 				}
 			}
 
-			System.out.println("Finished processing array of images");
+			Logger.print("Finished processing array of images");
 		});
 	}
 
@@ -285,7 +278,7 @@ public class UploadServlet extends HttpServlet {
 		Rect rect = Imgproc.boundingRect(points);
 
 		if (DEBUG_WATERMARK) {
-			System.out.println(rect.toString());
+			Logger.print(rect.toString());
 		}
 
 		Mat result = new Mat(source, rect);
@@ -307,7 +300,7 @@ public class UploadServlet extends HttpServlet {
 		Rect rect = new Rect(0, 0, x, y);
 
 		if (DEBUG_WATERMARK) {
-			System.out.println(rect.toString());
+			Logger.print(rect.toString());
 		}
 
 		Mat result = new Mat(source, rect);
@@ -319,7 +312,7 @@ public class UploadServlet extends HttpServlet {
 
 	private void processImageWithNoDowload(String urls) {
 		JSONArray arr = new JSONArray(urls);
-		System.out.println("Got " + arr.length() + " images to process");
+		Logger.print("Got " + arr.length() + " images to process");
 		int l = arr.length();
 
 		for (int i = 0; i < l; i++) {
@@ -334,20 +327,20 @@ public class UploadServlet extends HttpServlet {
 				File input = new File(path);
 
 				if (!input.isFile()) {
-					System.out.println("Input file " + path + " does not exist. Skipping...");
+					Logger.print("Input file " + path + " does not exist. Skipping...");
 					return;
 				}
 
 				if (!input.setReadable(true, false)) {
-					System.out.println("Unable to set read rights to file " + path);
+					Logger.print("Unable to set read rights to file " + path);
 				}
 
 				if (!input.setWritable(true, false)) {
-					System.out.println("Unable to set write rights to file " + path);
+					Logger.print("Unable to set write rights to file " + path);
 				}
 
 				if (!input.setExecutable(true, false)) {
-					System.out.println("Unable to set execute rights to file " + path);
+					Logger.print("Unable to set execute rights to file " + path);
 				}
 
 				addImageText(input, path);
@@ -373,7 +366,7 @@ public class UploadServlet extends HttpServlet {
 		Size size = img.size();
 
 		if (DEBUG_WATERMARK) {
-			System.out.println("Got image of size " + size.width + "x" + size.height);
+			Logger.print("Got image of size " + size.width + "x" + size.height);
 		}
 
 		Mat copy = new Mat();
@@ -406,7 +399,7 @@ public class UploadServlet extends HttpServlet {
 		double m = mean.val[0];
 
 		if (DEBUG_WATERMARK) {
-			System.out.println("mean is " + m);
+			Logger.print("mean is " + m);
 		}
 
 		Mat thresh = new Mat();
@@ -457,7 +450,7 @@ public class UploadServlet extends HttpServlet {
 		dilate.release();
 
 		if (DEBUG_WATERMARK) {
-			System.out.println("finished removal");
+			Logger.print("finished removal");
 		}
 
 		Imgproc.cvtColor(result, result, Imgproc.COLOR_BGR2BGRA);
@@ -491,7 +484,7 @@ public class UploadServlet extends HttpServlet {
 		removeOldImages(input);
 
 		if (DEBUG_WATERMARK) {
-			System.out.println("finished text add");
+			Logger.print("finished text add");
 		}
 	}
 
@@ -505,8 +498,8 @@ public class UploadServlet extends HttpServlet {
 			String match = (dotIndex == -1) ? input.getName() : input.getName().substring(0, dotIndex);
 
 			if (DEBUG_WATERMARK) {
-				System.out.println("Deleting files from temporary folder...");
-				System.out.println("Searching matches for " + match);
+				Logger.print("Deleting files from temporary folder...");
+				Logger.print("Searching matches for " + match);
 			}
 
 			final File[] files = tmpFolder.listFiles(new FilenameFilter() {
@@ -539,7 +532,7 @@ public class UploadServlet extends HttpServlet {
 				HashMap<String, String> response = ScheduleServlet.sendApiRequest("productprocessed", data);
 
 				if (response.get("status").equals("200")) {
-					System.out.println("Product " + productId + " set processed successfully");
+					Logger.print("Product " + productId + " set processed successfully");
 				} else {
 					System.err.println("Error setting product " + productId + " processed: " + response.get("message"));
 				}

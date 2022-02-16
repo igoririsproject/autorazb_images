@@ -4,6 +4,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.http.helpers.Logger;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -47,13 +48,13 @@ public class TimeService {
 		
 		try {
 		    if (!ses.awaitTermination(1, TimeUnit.MINUTES)) {
-		    	System.out.println("Attempting to stop TimeService scheduled executor now after 800ms...");
+		    	Logger.print("Attempting to stop TimeService scheduled executor now after 800ms...");
 		    	ses.shutdownNow();
 		    } else {
-		    	System.out.println("TimeService scheduled executor stopped successfully");
+		    	Logger.print("TimeService scheduled executor stopped successfully");
 		    }
 		} catch (InterruptedException e) {
-			System.out.println("Attempting to stop TimeService scheduled executor now because of InterruptedException...");
+			Logger.print("Attempting to stop TimeService scheduled executor now because of InterruptedException...");
 			ses.shutdownNow();
 		}
 		
@@ -61,13 +62,13 @@ public class TimeService {
 		
 		try {
 		    if (!executorService.awaitTermination(1, TimeUnit.MINUTES)) {
-		    	System.out.println("Attempting to stop TimeService executor now after 800ms...");
+		    	Logger.print("Attempting to stop TimeService executor now after 800ms...");
 		    	executorService.shutdownNow();
 		    } else {
-		    	System.out.println("TimeService executor stopped successfully");
+		    	Logger.print("TimeService executor stopped successfully");
 		    }
 		} catch (InterruptedException e) {
-			System.out.println("Attempting to stop TimeService executor now because of InterruptedException...");
+			Logger.print("Attempting to stop TimeService executor now because of InterruptedException...");
 			executorService.shutdownNow();
 		}
 	}
