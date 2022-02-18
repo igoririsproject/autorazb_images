@@ -14,8 +14,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.RunnableScheduledFuture;
-import java.util.concurrent.TimeUnit;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
@@ -51,7 +49,6 @@ public class UploadServlet extends HttpServlet {
 	private static String imageText = "AutorazborkaBY*AutorazborkaBY*AutorazborkaBY*AutorazborkaBY";
 
 	private static final long serialVersionUID = 1L;
-	private static RunnableScheduledFuture<?> processedTask = null;
 
 	public UploadServlet() {
 		super();
@@ -535,42 +532,31 @@ public class UploadServlet extends HttpServlet {
 			}
 		}
 
-		System.out.println("--- processingSize=" + processingSize + "; size=" + size);
+		if (size >= 30 || processingSize == 0) {
+			System.out.println("--- processingSize=" + processingSize + "; size=" + size);
 
-		if (size < 30) {
-			if (processedTask != null) {
-				processedTask.cancel(false);
+			JSONArray idArr = new JSONArray();
+
+			keys.forEach(productId -> {
+				idArr.put(productId);
+				indeces.remove(productId);
+			});
+
+			System.out.println("--- " + idArr.toString());
+
+			if (idArr.length() == 0) {
+				return;
 			}
 
-			processedTask = TimeService.scheduleTask(() -> {
-				processedTask = null;
-				setProductsProcessed();
-			}, 10, TimeUnit.SECONDS);
+			HashMap<String, String> data = new HashMap<String, String>();
+			data.put("data", idArr.toString());
+			HashMap<String, String> response = ScheduleServlet.sendApiRequest("productprocessed", data);
 
-			return;
-		} else if (processingSize > 0) {
-			return;
-		}
-
-		JSONArray idArr = new JSONArray();
-
-		keys.forEach(productId -> {
-			idArr.put(productId);
-			indeces.remove(productId);
-		});
-
-		if (idArr.length() == 0) {
-			return;
-		}
-
-		HashMap<String, String> data = new HashMap<String, String>();
-		data.put("data", idArr.toString());
-		HashMap<String, String> response = ScheduleServlet.sendApiRequest("productprocessed", data);
-
-		if (response.get("status").equals("200")) {
-			Logger.print(idArr.length() + " products set processed successfully");
-		} else {
-			System.err.println("Error setting products processed: " + response.get("message"));
+			if (response.get("status").equals("200")) {
+				Logger.print(idArr.length() + " products set processed successfully");
+			} else {
+				System.err.println("Error setting products processed: " + response.get("message"));
+			}
 		}
 	}
 
