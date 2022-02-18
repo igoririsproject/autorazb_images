@@ -9,6 +9,7 @@ import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import jakarta.servlet.ServletException;
@@ -45,6 +46,8 @@ public class UploadServlet extends HttpServlet {
 	private static String imageText = "AutorazborkaBY*AutorazborkaBY*AutorazborkaBY*AutorazborkaBY";
 
 	private static final long serialVersionUID = 1L;
+
+	private static ArrayList<Integer> productIds = new ArrayList<Integer>();
 
 	public UploadServlet() {
 		super();
@@ -524,17 +527,26 @@ public class UploadServlet extends HttpServlet {
 			int current = indeces.getOrDefault(productId, 0);
 
 			if (index == maxIndex - 1 || current == maxIndex) {
-				JSONArray idArr = new JSONArray();
-				idArr.put(productId);
+				productIds.add(productId);
+				int size = productIds.size();
 				
-				HashMap<String, String> data = new HashMap<String, String>();
-				data.put("data", idArr.toString());
-				HashMap<String, String> response = ScheduleServlet.sendApiRequest("productprocessed", data);
+				if (size >= 20) {
+					JSONArray idArr = new JSONArray();
+					
+					for (int i = 0; i < size; i++) {
+						idArr.put(productIds.get(i));
+					}
+					
+					productIds.clear();
+					HashMap<String, String> data = new HashMap<String, String>();
+					data.put("data", idArr.toString());
+					HashMap<String, String> response = ScheduleServlet.sendApiRequest("productprocessed", data);
 
-				if (response.get("status").equals("200")) {
-					Logger.print("Product " + productId + " set processed successfully");
-				} else {
-					System.err.println("Error setting product " + productId + " processed: " + response.get("message"));
+					if (response.get("status").equals("200")) {
+						Logger.print("Product " + productId + " set processed successfully");
+					} else {
+						System.err.println("Error setting product " + productId + " processed: " + response.get("message"));
+					}
 				}
 
 				indeces.remove(productId);
