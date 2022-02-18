@@ -47,8 +47,6 @@ public class UploadServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 
-	private static ArrayList<Integer> productIds = new ArrayList<Integer>();
-
 	public UploadServlet() {
 		super();
 		Logger.print("Upload servlet starting...");
@@ -525,9 +523,9 @@ public class UploadServlet extends HttpServlet {
 	private static void setProductsProcessed(int index, int maxIndex, int productId) {
 		if (index >= 0 && maxIndex >= 0 && productId >= 0) {
 			int current = indeces.getOrDefault(productId, 0);
+			Logger.print(index + " " + current + " " + maxIndex);
 
 			if (index == maxIndex - 1 || current == maxIndex) {
-				productIds.add(productId);
 				JSONArray idArr = new JSONArray();
 				idArr.put(productId);
 				
