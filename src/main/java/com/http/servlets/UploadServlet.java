@@ -11,6 +11,7 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Set;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
@@ -206,7 +207,7 @@ public class UploadServlet extends HttpServlet {
 									indeces.put(productId, current + 1);
 								}
 
-								setProductsProcessed(index, maxIndex, productId);
+								setProductsProcessed(false);
 							}
 						} else {
 							if (productId > 0) {
@@ -214,12 +215,13 @@ public class UploadServlet extends HttpServlet {
 								indeces.put(productId, current + 1);
 							}
 
-							setProductsProcessed(index, maxIndex, productId);
+							setProductsProcessed(false);
 						}
 					});
 				}
 			}
-
+			
+			setProductsProcessed(true);
 			Logger.print("Finished processing array of images");
 		});
 	}
@@ -520,29 +522,28 @@ public class UploadServlet extends HttpServlet {
 		}
 	}
 
-	private static void setProductsProcessed(int index, int maxIndex, int productId) {
-		if (index >= 0 && maxIndex >= 0 && productId >= 0) {
-			int current = indeces.getOrDefault(productId, 0);
-			Logger.print(index + " " + current + " " + maxIndex);
-
-			if (index == maxIndex - 1 || current == maxIndex) {
-				JSONArray idArr = new JSONArray();
-				idArr.put(productId);
-				
-				HashMap<String, String> data = new HashMap<String, String>();
-				data.put("data", idArr.toString());
-				HashMap<String, String> response = ScheduleServlet.sendApiRequest("productprocessed", data);
-
-				if (response.get("status").equals("200")) {
-					Logger.print("Product " + productId + " set processed successfully");
-				} else {
-					System.err.println("Error setting product " + productId + " processed: " + response.get("message"));
-				}
-
-				indeces.remove(productId);
-			}
+	private static void setProductsProcessed(boolean force) {
+		if (!force || indeces.size() < 30) {
+			return;
 		}
 
+		Set<Integer> keys = indeces.keySet();
+		JSONArray idArr = new JSONArray();
+
+		keys.forEach(productId -> {
+			idArr.put(productId);
+			indeces.remove(productId);
+		});
+
+		HashMap<String, String> data = new HashMap<String, String>();
+		data.put("data", idArr.toString());
+		HashMap<String, String> response = ScheduleServlet.sendApiRequest("productprocessed", data);
+
+		if (response.get("status").equals("200")) {
+			Logger.print(idArr.length() + "products set processed successfully");
+		} else {.
+			System.err.println("Error setting products processed: " + response.get("message"));
+		}
 	}
 
 	public static Scalar colorRGB(double red, double green, double blue) {
