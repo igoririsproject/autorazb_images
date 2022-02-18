@@ -11,7 +11,10 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
@@ -42,7 +45,7 @@ import com.utils.TimeService;
 @WebServlet(urlPatterns = { "/upload/*" }, asyncSupported = true, loadOnStartup = 1)
 public class UploadServlet extends HttpServlet {
 	private static boolean DEBUG_WATERMARK = false;
-	private static HashMap<Integer, Integer> indeces = new HashMap<Integer, Integer>();
+	private static HashMap<Integer, Boolean> indeces = new HashMap<Integer, Boolean>();
 
 	private static String imageText = "AutorazborkaBY*AutorazborkaBY*AutorazborkaBY*AutorazborkaBY";
 
@@ -93,8 +96,7 @@ public class UploadServlet extends HttpServlet {
 				int productId = obj.optInt("product_id", -1);
 
 				if (productId > 0) {
-					int current = indeces.getOrDefault(productId, 0);
-					indeces.put(productId, current);
+					indeces.put(productId, true);
 				}
 
 				if (!url.isEmpty() && !dest.isEmpty()) {
@@ -203,16 +205,14 @@ public class UploadServlet extends HttpServlet {
 								ex1.printStackTrace();
 							} finally {
 								if (productId > 0) {
-									int current = indeces.getOrDefault(productId, 0);
-									indeces.put(productId, current + 1);
+									indeces.put(productId, false);
 								}
 
 								setProductsProcessed(false);
 							}
 						} else {
 							if (productId > 0) {
-								int current = indeces.getOrDefault(productId, 0);
-								indeces.put(productId, current + 1);
+								indeces.put(productId, false);
 							}
 
 							setProductsProcessed(false);
@@ -221,7 +221,6 @@ public class UploadServlet extends HttpServlet {
 				}
 			}
 			
-			setProductsProcessed(true);
 			Logger.print("Finished processing array of images");
 		});
 	}
@@ -522,12 +521,32 @@ public class UploadServlet extends HttpServlet {
 		}
 	}
 
-	private static void setProductsProcessed(boolean force) {
-		if (!force || indeces.size() < 30) {
+	private static void setProductsProcessed(Boolean force) {
+		int size = 0;
+		int processingSize = 0;
+		Set<Integer> keys = new HashSet<Integer>();
+
+		for (Map.Entry<Integer, Boolean> entry : indeces.entrySet()) {
+			if (entry.getValue()) {
+				processingSize++;
+			} else {
+				size++;
+				keys.add(entry.getKey());
+			}
+		}
+
+		if (processingSize > 0 && size < 30 && size != 1) {
 			return;
 		}
 
-		Set<Integer> keys = indeces.keySet();
+		if (size == 1 && !force) {
+			TimeService.scheduleTask(() -> {
+				setProductsProcessed(true);
+			}, 20, TimeUnit.SECONDS);
+
+			return;
+		}
+
 		JSONArray idArr = new JSONArray();
 
 		keys.forEach(productId -> {
