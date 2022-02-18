@@ -537,12 +537,17 @@ public class UploadServlet extends HttpServlet {
 
 		System.out.println("--- processingSize=" + processingSize + "; size=" + size);
 
-		if (processingSize > 0 && size < 30) {
+		if (size < 30) {
 			if (processedTask != null) {
 				processedTask.cancel(false);
 			}
 
-			processedTask = TimeService.scheduleTask(() -> setProductsProcessed(), 20, TimeUnit.SECONDS);
+			processedTask = TimeService.scheduleTask(() -> {
+				processedTask = null;
+				setProductsProcessed();
+			}, 20, TimeUnit.SECONDS);
+			return;
+		} else if (processingSize == 0 && processedTask != null && !processedTask.isDone()) {
 			return;
 		}
 
