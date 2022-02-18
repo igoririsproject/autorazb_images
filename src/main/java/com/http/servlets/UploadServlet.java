@@ -93,8 +93,6 @@ public class UploadServlet extends HttpServlet {
 
 				String url = obj.optString("url");
 				String dest = obj.optString("dest");
-				int index = obj.optInt("index", -1);
-				int maxIndex = obj.optInt("max_index", -1);
 				int productId = obj.optInt("product_id", -1);
 
 				if (productId > 0) {
@@ -210,14 +208,14 @@ public class UploadServlet extends HttpServlet {
 									indeces.put(productId, false);
 								}
 
-								setProductsProcessed(false);
+								setProductsProcessed();
 							}
 						} else {
 							if (productId > 0) {
 								indeces.put(productId, false);
 							}
 
-							setProductsProcessed(false);
+							setProductsProcessed();
 						}
 					});
 				}
@@ -523,7 +521,7 @@ public class UploadServlet extends HttpServlet {
 		}
 	}
 
-	private static void setProductsProcessed(Boolean force) {
+	private static void setProductsProcessed() {
 		int size = 0;
 		int processingSize = 0;
 		Set<Integer> keys = new HashSet<Integer>();
@@ -538,15 +536,11 @@ public class UploadServlet extends HttpServlet {
 		}
 
 		if (processingSize > 0 && size < 30) {
-			return;
-		}
+			if (processedTask != null) {
+				processedTask.cancel(false);
+			}
 
-		if (!force && processedTask == null) {
-			processedTask = TimeService.scheduleTask(() -> {
-				processedTask = null;
-				setProductsProcessed(true);
-			}, 20, TimeUnit.SECONDS);
-
+			processedTask = TimeService.scheduleTask(() -> setProductsProcessed(), 20, TimeUnit.SECONDS);
 			return;
 		}
 
