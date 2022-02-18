@@ -530,7 +530,7 @@ public class UploadServlet extends HttpServlet {
 				productIds.add(productId);
 				int size = productIds.size();
 				
-				if (size >= 20) {
+				if (size >= 20 || current == maxIndex) {
 					JSONArray idArr = new JSONArray();
 					
 					for (int i = 0; i < size; i++) {
