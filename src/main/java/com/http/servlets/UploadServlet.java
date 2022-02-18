@@ -541,7 +541,7 @@ public class UploadServlet extends HttpServlet {
 
 		if (response.get("status").equals("200")) {
 			Logger.print(idArr.length() + "products set processed successfully");
-		} else {.
+		} else {
 			System.err.println("Error setting products processed: " + response.get("message"));
 		}
 	}
