@@ -545,7 +545,7 @@ public class UploadServlet extends HttpServlet {
 			processedTask = TimeService.scheduleTask(() -> {
 				processedTask = null;
 				setProductsProcessed();
-			}, 20, TimeUnit.SECONDS);
+			}, 10, TimeUnit.SECONDS);
 
 			return;
 		} else if (processingSize > 0) {
