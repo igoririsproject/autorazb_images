@@ -546,8 +546,9 @@ public class UploadServlet extends HttpServlet {
 				processedTask = null;
 				setProductsProcessed();
 			}, 20, TimeUnit.SECONDS);
+
 			return;
-		} else if (processingSize == 0 && processedTask != null && !processedTask.isDone()) {
+		} else if (processingSize > 0) {
 			return;
 		}
 
