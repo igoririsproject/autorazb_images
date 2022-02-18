@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.RunnableScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import jakarta.servlet.ServletException;
@@ -50,6 +51,7 @@ public class UploadServlet extends HttpServlet {
 	private static String imageText = "AutorazborkaBY*AutorazborkaBY*AutorazborkaBY*AutorazborkaBY";
 
 	private static final long serialVersionUID = 1L;
+	private static RunnableScheduledFuture<?> processedTask = null;
 
 	public UploadServlet() {
 		super();
@@ -539,8 +541,9 @@ public class UploadServlet extends HttpServlet {
 			return;
 		}
 
-		if (size == 1 && !force) {
-			TimeService.scheduleTask(() -> {
+		if (!force && processedTask == null) {
+			processedTask = TimeService.scheduleTask(() -> {
+				processedTask = null;
 				setProductsProcessed(true);
 			}, 20, TimeUnit.SECONDS);
 
@@ -554,12 +557,16 @@ public class UploadServlet extends HttpServlet {
 			indeces.remove(productId);
 		});
 
+		if (idArr.length() == 0) {
+			return;
+		}
+
 		HashMap<String, String> data = new HashMap<String, String>();
 		data.put("data", idArr.toString());
 		HashMap<String, String> response = ScheduleServlet.sendApiRequest("productprocessed", data);
 
 		if (response.get("status").equals("200")) {
-			Logger.print(idArr.length() + "products set processed successfully");
+			Logger.print(idArr.length() + " products set processed successfully");
 		} else {
 			System.err.println("Error setting products processed: " + response.get("message"));
 		}
