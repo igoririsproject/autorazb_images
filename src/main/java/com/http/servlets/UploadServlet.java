@@ -535,7 +535,7 @@ public class UploadServlet extends HttpServlet {
 			}
 		}
 
-		System.out.println("processingSize=" + processingSize + "; size=" + size);
+		System.out.println("--- processingSize=" + processingSize + "; size=" + size);
 
 		if (processingSize > 0 && size < 30) {
 			if (processedTask != null) {
