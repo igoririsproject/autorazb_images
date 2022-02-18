@@ -528,25 +528,17 @@ public class UploadServlet extends HttpServlet {
 
 			if (index == maxIndex - 1 || current == maxIndex) {
 				productIds.add(productId);
-				int size = productIds.size();
+				JSONArray idArr = new JSONArray();
+				idArr.put(productId);
 				
-				if (size >= 20 || current == maxIndex) {
-					JSONArray idArr = new JSONArray();
-					
-					for (int i = 0; i < size; i++) {
-						idArr.put(productIds.get(i));
-					}
-					
-					productIds.clear();
-					HashMap<String, String> data = new HashMap<String, String>();
-					data.put("data", idArr.toString());
-					HashMap<String, String> response = ScheduleServlet.sendApiRequest("productprocessed", data);
+				HashMap<String, String> data = new HashMap<String, String>();
+				data.put("data", idArr.toString());
+				HashMap<String, String> response = ScheduleServlet.sendApiRequest("productprocessed", data);
 
-					if (response.get("status").equals("200")) {
-						Logger.print("Product " + productId + " set processed successfully");
-					} else {
-						System.err.println("Error setting product " + productId + " processed: " + response.get("message"));
-					}
+				if (response.get("status").equals("200")) {
+					Logger.print("Product " + productId + " set processed successfully");
+				} else {
+					System.err.println("Error setting product " + productId + " processed: " + response.get("message"));
 				}
 
 				indeces.remove(productId);
