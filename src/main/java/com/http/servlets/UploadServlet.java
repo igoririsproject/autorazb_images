@@ -537,7 +537,7 @@ public class UploadServlet extends HttpServlet {
 			}
 		}
 
-		if (processingSize > 0 && size < 30 && size != 1) {
+		if (processingSize > 0 && size < 30) {
 			return;
 		}
 
